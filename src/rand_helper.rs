@@ -4,7 +4,7 @@ use rand::{
     Rng,
 };
 #[cfg(feature = "std")]
-use rand::{prelude::ThreadRng, RngCore};
+use rand::{prelude::ThreadRng, RngCore, CryptoRng};
 
 pub use rand;
 
@@ -40,7 +40,7 @@ pub fn test_rng() -> impl rand::Rng {
 
 /// Should be used only for tests, not for any real world usage.
 #[cfg(feature = "std")]
-pub fn test_rng() -> impl rand::Rng {
+pub fn test_rng() -> impl Rng + CryptoRng {
     let is_deterministic =
         std::env::vars().any(|(key, val)| key == "DETERMINISTIC_TEST_RNG" && val == "1");
     if is_deterministic {
@@ -91,6 +91,9 @@ impl RngCore for RngWrapper {
         }
     }
 }
+
+#[cfg(feature = "std")]
+impl CryptoRng for RngWrapper {}
 
 #[cfg(all(test, feature = "std"))]
 mod test {
